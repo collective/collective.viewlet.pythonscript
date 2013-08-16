@@ -1,0 +1,2 @@
+collective.viewlet.pythonscript
+===============================

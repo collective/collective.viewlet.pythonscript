@@ -1,0 +1,3 @@
+<div id="pythonscript-viewlet">
+    <tal:viewlet replace="structure view/safe_render" />
+</div>

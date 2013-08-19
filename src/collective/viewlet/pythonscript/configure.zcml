@@ -6,6 +6,7 @@
     i18n_domain="collective.viewlet.pythonscript">
 
   <five:registerPackage package="." initialize=".initialize" />
+  <include package=".browser" />
   
   <genericsetup:registerProfile
       name="default"
@@ -15,4 +16,11 @@
       provides="Products.GenericSetup.interfaces.EXTENSION"
       />
   
+  <include package="archetypes.schemaextender" />
+  <adapter factory=".schema.schema.ViewletConfigFieldsExtender" />
+
+  <class class="Products.Archetypes.BaseContent.BaseContent">
+      <implements interface=".interfaces.IViewletConfigFieldsExtender" />
+  </class>
+
 </configure>

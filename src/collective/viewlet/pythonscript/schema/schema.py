@@ -12,11 +12,28 @@ class ExtensionBooleanField(ExtensionField, atapi.BooleanField):
     """ Extension boolean field """
 
 
-class ExtensionStringField(ExtensionField, atapi.StringField):
+class ExtensionInheritanceField(ExtensionField):
+    """ Extension field taking into accout the inheritance settings """
+
+    def get(self, instance, **kwargs):
+        inherit = getattr( instance, 'inherit_viewlet_settings', False)
+        field = kwargs.get('field')
+        if inherit:
+            instance = instance.aq_inner.aq_parent
+            value = self.get(instance, **kwargs)
+            return value
+        try:
+            value = self.getStorage(instance).get(self.getName(), instance, **kwargs)
+        except AttributeError:
+            value = self.default
+        return value
+
+
+class ExtensionStringField(ExtensionInheritanceField, atapi.StringField):
     """ Extension string field """
 
 
-class ExtensionIntField(ExtensionField, atapi.IntegerField):
+class ExtensionIntField(ExtensionInheritanceField, atapi.IntegerField):
     """ Extension integer field """
 
 
@@ -42,9 +59,11 @@ class ViewletConfigFieldsExtender(object):
         ),
         ExtensionStringField(
         	"script_name",
-        	vocabulary_factory = "python-scripts",
+        	vocabulary_factory = "python-scripts-viewlet",
         	schemata = "Listing",
+            required = False,
         	widget = atapi.SelectionWidget(
+                format='select',
             	label=_(u"Python Script"),
             	description=_(u"Python Script used to generate list of results"),
             ),
@@ -59,9 +78,11 @@ class ViewletConfigFieldsExtender(object):
         ),
         ExtensionStringField(
         	"template_name",
-        	vocabulary_factory = "python-scripts-templates",
+        	vocabulary_factory = "python-scripts-viewlets-templates",
         	schemata = "Listing",
+            required = False,
         	widget = atapi.SelectionWidget(
+                format='select',
             	label=_(u"Template"),
             	description=_(u"Template to use to render list of results"),
             ),
@@ -72,4 +93,7 @@ class ViewletConfigFieldsExtender(object):
         self.context = context
 
     def getFields(self):
-        return self.fields
+        if any([i.get(self.context) for i in self.fields]):
+            return self.fields
+        else:
+            return self.fields[1:]

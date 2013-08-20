@@ -6,7 +6,7 @@ from plone.testing import z2
 from collective.portlet.pythonscript.tests.base import TestBase
 from collective.portlet.pythonscript.content.interface import IPythonScriptManager
 
-from collective.viewlet.pythonscript.browset.viewlet import PythonScriptViewlet
+from collective.viewlet.pythonscript.browser.viewlet import PythonScriptViewlet
 
 class TestPortlet(TestBase):
     """Test script portlet."""

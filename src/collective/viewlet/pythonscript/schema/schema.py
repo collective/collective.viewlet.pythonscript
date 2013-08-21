@@ -16,10 +16,15 @@ class ExtensionInheritanceField(ExtensionField):
     """ Extension field taking into accout the inheritance settings """
 
     def get(self, instance, **kwargs):
-        inherit = getattr( instance, 'inherit_viewlet_settings', False)
+        inherit = getattr(instance, 'inherit_viewlet_settings', False)
+        if kwargs.get('inherit'):
+            inherit = kwargs.pop('inherit')
         field = kwargs.get('field')
         if inherit:
-            instance = instance.aq_inner.aq_parent
+            try:
+                instance = instance.aq_inner.aq_parent
+            except AttributeError:
+                return None
             value = self.get(instance, **kwargs)
             return value
         try:
@@ -93,7 +98,10 @@ class ViewletConfigFieldsExtender(object):
         self.context = context
 
     def getFields(self):
-        if any([i.get(self.context) for i in self.fields]):
+        """ The list of fields """
+        # Return the 'inherit_viewlet_settings' field only if it's possible to inherit
+        if any([i.get(self.context, inherit=True) for i in self.fields]):
             return self.fields
         else:
             return self.fields[1:]
+

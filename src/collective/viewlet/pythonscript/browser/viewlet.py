@@ -19,8 +19,12 @@ class PythonScriptViewletSettingsDescriptor(object):
         self.label = label
 
     def __get__(self, instance, owner):
-        context = instance.context
-        value = context.Schema().get(self.label).get(context)
+        try:
+            context = instance.context
+            value = context.Schema().get(self.label).get(context)
+        except AttributeError:
+            return None
+            
         if isinstance(value, unicode):
             value = value.encode('utf-8')
         return value

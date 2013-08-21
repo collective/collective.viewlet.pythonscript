@@ -5,8 +5,11 @@ from Products.CMFPlone import PloneMessageFactory as _
 class Edit(BaseEdit):
 
     def __call__(self, context=None, request=None):
+        inherit = False
         try:
-            inherit = self.fields(['Listing'])[0].get(self.context)
+            inherit_field = [i for i in self.fields(['Listing']) if i.getName() == 'inherit_viewlet_settings']
+            if inherit_field:
+                inherit = inherit_field[0].get(self.context)
         except KeyError:
             return self
         if inherit:

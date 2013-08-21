@@ -5,7 +5,7 @@
 
     <browser:viewlet
         name="pythonscript-viewlet"
-        manager="plone.app.layout.viewlets.interfaces.IBelowContentBody"
+        manager="plone.app.layout.viewlets.interfaces.IBelowContent"
         class=".viewlet.PythonScriptViewlet"
         permission="zope2.View"
         />

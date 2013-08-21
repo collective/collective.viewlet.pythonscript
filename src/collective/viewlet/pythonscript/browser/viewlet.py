@@ -10,7 +10,7 @@ from plone.app.layout.viewlets import ViewletBase
 
 from collective.portlet.pythonscript.browser.portlet import PythonScriptPortletRenderer
 
-logger = logging.getLogger('pythonscript.vielet')
+logger = logging.getLogger('pythonscript.viewlet')
 
 
 class PythonScriptViewletSettingsDescriptor(object):

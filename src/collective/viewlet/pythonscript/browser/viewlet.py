@@ -1,10 +1,11 @@
 import logging
 import sys
 
+from AccessControl import getSecurityManager
 from Acquisition import aq_acquire
 from ZODB.POSException import ConflictError
-from zope.component import getMultiAdapter
 
+from Products.CMFCore.permissions import ModifyPortalContent
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from plone.app.layout.viewlets import ViewletBase
 
@@ -24,15 +25,17 @@ class PythonScriptViewletSettingsDescriptor(object):
             value = context.Schema().get(self.label).get(context)
         except AttributeError:
             return None
-            
+
         if isinstance(value, unicode):
             value = value.encode('utf-8')
         return value
+
 
 class PythonScriptViewlet(ViewletBase, PythonScriptPortletRenderer):
     """ Viewlet for displaying the python script results """
 
     index = ViewPageTemplateFile("pythonscript-viewlet.pt")
+    error_template = ViewPageTemplateFile("pythonscript-error.pt")
     error_message = "<!-- Unable to render pyhtonscript vielet content -->"
     viewlet_title = PythonScriptViewletSettingsDescriptor('viewlet_title')
     template_name = PythonScriptViewletSettingsDescriptor('template_name')
@@ -47,7 +50,7 @@ class PythonScriptViewlet(ViewletBase, PythonScriptPortletRenderer):
         return self
 
     def display(self):
-        return self.script_name and self.template_name 
+        return self.script_name and self.template_name
 
     def safe_render(self):
         try:
@@ -57,5 +60,6 @@ class PythonScriptViewlet(ViewletBase, PythonScriptPortletRenderer):
         except Exception:
             logger.exception('Error while rendering %r' % self)
             aq_acquire(self.context, 'error_log').raising(sys.exc_info())
+            if getSecurityManager().checkPermission(ModifyPortalContent, self.context):
+                return self.error_template()
             return self.error_message
-
